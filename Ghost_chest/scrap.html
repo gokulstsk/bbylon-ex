@@ -103,7 +103,6 @@
                 "testdome",
                 "./textures/cloud.jpg",
                 {
-                    // resolution: 32,
                     resolution : 100,
                     size: 1000
                 },
@@ -114,25 +113,22 @@
 
         
             // Ground
-            var ground = BABYLON.MeshBuilder.CreateGround("ground", { height: 50, width: 70, subdivisions: 4 }, scene);
-            var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-            groundMaterial.diffuseTexture = new BABYLON.Texture("textures/Sand.jpg", scene);
-            // groundMaterial.diffuseTexture.uScale = 30;
-            // groundMaterial.diffuseTexture.vScale = 30;
-            groundMaterial.specularColor = new BABYLON.Color3(.1, .1, .1);
-            ground.applygravity=true;
-            ground.material = groundMaterial;
-            // ground.checkCollisions=true;
+            // var ground = BABYLON.MeshBuilder.CreateGround("ground", { height: 50, width: 70, subdivisions: 4 }, scene);
+            // var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+            // groundMaterial.diffuseTexture = new BABYLON.Texture("textures/Sand.jpg", scene);
+            // groundMaterial.specularColor = new BABYLON.Color3(.1, .1, .1);
+            // ground.applygravity=true;
+            // ground.material = groundMaterial;
         
 // Keyboard events
-            var inputMap = {};
-            scene.actionManager = new BABYLON.ActionManager(scene);
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
-                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-            }));
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
-                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-            }));
+            // var inputMap = {};
+            // scene.actionManager = new BABYLON.ActionManager(scene);
+            // scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
+            //     inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            // }));
+            // scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
+            //     inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            // }));
 
             //HauntHouse
             var haunt = new BABYLON.SceneLoader.ImportMesh("", "./scenes/", "haun.glb", scene,function(newMeshes,skeletons,animationGroups){
@@ -345,8 +341,7 @@
 
             var xr = await scene.createDefaultXRExperienceAsync({
                 uiOptions: {
-                    sessionMode: "immersive-ar",
-              
+                    sessionMode: "immersive-ar"             
                 }
         
             });
