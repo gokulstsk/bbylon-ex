@@ -65,7 +65,7 @@
         var createDefaultEngine = function() 
         { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
         
-        var createScene =async function () {
+        var createScene = function () {
             engine.enableOfflineSupport = false;
         
             // Scene and Camera
@@ -230,7 +230,7 @@
                             var keydown = false;
                             var keytripple=false;
                             if (inputMap["w"] || inputMap["W"]) {
-                                var heroSpeed=0.6;
+                                var heroSpeed=0.06;
                                 hashira.moveWithCollisions(hashira.forward.scaleInPlace(heroSpeed));
                                 console.log("w key pressed");
                                 keydown = true;
