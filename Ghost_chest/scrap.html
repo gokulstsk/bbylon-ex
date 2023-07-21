@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Ghost chest</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://cdn.babylonjs.com/ammo.js"></script>
+        <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+        <script src="https://cdn.babylonjs.com/cannon.js"></script>
+        <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+        <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            
+            #canvasZone {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+                });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+
+        var createDefaultEngine = function() 
+        { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        
+        var createScene =async function () {
+            engine.enableOfflineSupport = false;
+        
+            // Scene and Camera
+            var scene = new BABYLON.Scene(engine);
+            //BABYLON.enablePhysics=true;
+            var camera1 = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, new BABYLON.Vector3(0, -2, 5), scene);
+            scene.activeCamera = camera1;
+            scene.activeCamera.attachControl(canvas, true);
+            //scene.collisionsEnabled = true;
+            camera1.lowerRadiusLimit = 5;
+            camera1.upperRadiusLimit = 70;
+            camera1.wheelDeltaPercentage = 0.01;
+            camera1.applygravity=true;
+            // camera1.checkCollisions=true;
+        
+            // Lights
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.6;
+            light.specular = BABYLON.Color3.Black();
+        
+            var light2 = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
+            light2.position = new BABYLON.Vector3(0, 5, 5);
+
+            // const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 100.0 }, scene);
+            // const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+            // skyboxMaterial.backFaceCulling = false;
+            // skyboxMaterial.reflectionTexture = new BABYLON.Texture("textures/cloudy.jpg", scene);
+            // skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            // skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            // skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+            // skybox.material = skyboxMaterial;
+
+
+            var dome = new BABYLON.PhotoDome(
+                "testdome",
+                "./textures/cloud.jpg",
+                {
+                    // resolution: 32,
+                    resolution : 100,
+                    size: 1000
+                },
+                scene
+            );
+
+
+
+        
+            // Ground
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", { height: 50, width: 70, subdivisions: 4 }, scene);
+            var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+            groundMaterial.diffuseTexture = new BABYLON.Texture("textures/Sand.jpg", scene);
+            // groundMaterial.diffuseTexture.uScale = 30;
+            // groundMaterial.diffuseTexture.vScale = 30;
+            groundMaterial.specularColor = new BABYLON.Color3(.1, .1, .1);
+            ground.applygravity=true;
+            ground.material = groundMaterial;
+            // ground.checkCollisions=true;
+        
+// Keyboard events
+            var inputMap = {};
+            scene.actionManager = new BABYLON.ActionManager(scene);
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
+                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            }));
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
+                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+            }));
+
+            //HauntHouse
+            var haunt = new BABYLON.SceneLoader.ImportMesh("", "./scenes/", "haun.glb", scene,function(newMeshes,skeletons,animationGroups){
+            for(var j=0;j<newMeshes.length;j++){
+                newMeshes[0].position=new BABYLON.Vector3(0,-1.2,0);
+                const haunt=newMeshes[0];
+                newMeshes[j].applygravity=true;
+                var hauntee=newMeshes[j];
+
+                console.log(newMeshes[j].checkCollisions);
+                newMeshes[0].scaling=new BABYLON.Vector3(0.5,0.5,0.5);
+            }
+        });
+            //Treasure chest
+            // var chestimport = new BABYLON.SceneLoader.ImportMesh("", "./scenes/", "chestfinal.glb", scene,function(newMeshes,particleSystems,skeletons,animationGroups){
+            //     chestimport.material=groundMaterial;
+            //     for(var j=0;j<newMeshes.length;j++){
+            //         newMeshes[0].position=new BABYLON.Vector3(10,0.2,-17);
+            //         var chesthunt=newMeshes[j];
+            //         // newMeshes[j].checkCollisions=false;
+            //         var isPickable=false;
+            //         newMeshes[0].scaling=new BABYLON.Vector3(40,40,40);
+            //     }
+            //     const chestopen = scene.getAnimationGroupByName("chestopentop");
+            //     var animae=true;
+            //     scene.onBeforeRenderObservable.add(() => {
+            //     var keydown = false;
+            
+            //         if (inputMap["o"]|| inputMap['O']) {
+            //         keydown = true;
+            //         }
+                    
+            //         if (keydown) {
+            //                 if (!animae) {
+            //                     animae = true;
+                                
+            //                     if(inputMap["o"]|| inputMap["O"]){
+            //                         chestopen.start(true,0.5,chestopen.from ,chestopen.to,false);
+            //                     }
+            //                 }
+            //             }
+            //         else {
+            //                 if (animae) {
+            //                     animationGroups[0].stop();
+            //                     animae = false;
+            //                 }
+            //             }
+            //     });  
+            // });
+
+            scene.animationPropertiesOverride = new BABYLON.AnimationPropertiesOverride();
+            scene.animationPropertiesOverride.enableBlending = true;
+            
+            scene.animationPropertiesOverride.blendingSpeed = 0.02; //0.02
+           scene.animationPropertiesOverride.loopMode = 1;
+
+           // Character Walkinginplace
+        //     var hero = new BABYLON.SceneLoader.ImportMesh ("", "./scenes/", "ultimatemask.glb", scene,function(newMeshes,particleSystems,skeletons,animationGroups){
+        //         const hero=newMeshes[1];
+        //         for(var i=0;i<newMeshes.length;i++){
+        //             var hashira=newMeshes[0];
+        //             var her=newMeshes[i];
+        //             hashira.applygravity=true;
+                    
+        //             her.scaling=new BABYLON.Vector3(1.5,1.5,1.5);
+        //             camera1.target=her;}
+
+        //         newMeshes[0].position=new BABYLON.Vector3(0,0,25);
+    
+        //          var animating = true;
+        
+
+        //             var stand = null;
+        //             var walkAnim = null;
+        //             var run = null;
+
+        //             var standAnimGroup =null;
+        //             var walkAnimGroup =null;
+        //             var runAnimGroup =null;
+        //                 standAnimGroup = animationGroups.find(group => group.name === "idlestand");
+        //                 walkAnimGroup = animationGroups.find(group => group.name === "walking");
+        //                 runAnimGroup = animationGroups.find(group => group.name === "running");
+
+        //                 stand = { name: "idlestand  ", anim: standAnimGroup, weight: 1 };
+        //                 walkAnim = { name: "walking", anim: walkAnimGroup, weight: 0 };
+        //                 run = { name: "running", anim: runAnimGroup, weight: 0 };
+        //                 standAnimGroup.weight=1;
+        //                 walkAnimGroup.weight=0;
+        //                 runAnimGroup.weight=0;
+                        
+        //                             // Play idle animation by default
+        //         standAnimGroup.play(true);
+        //         standAnimGroup.setWeightForAllAnimatables(1);
+        //                 var animations = [];
+        //                 var animationsWeight = [];
+        //                 var heroRotationSpeed=0.1;
+
+        //                 scene.onBeforeRenderObservable.add(() => {
+        //                     var keydown = false;
+        //                     var keytripple=false;
+        //                     if (inputMap["w"] || inputMap["W"]) {
+        //                         var heroSpeed=0.6;
+        //                         hashira.moveWithCollisions(hashira.forward.scaleInPlace(heroSpeed));
+        //                         console.log("w key pressed");
+        //                         keydown = true;
+        //                     }
+        //                     if (inputMap["s"] || inputMap["S"]) {
+        //                         var heroSpeed=0.06;
+        //                         hashira.moveWithCollisions(hashira.forward.scaleInPlace(-heroSpeed));
+        //                         console.log("s key pressed");
+        //                         keydown = true;
+        //                     }
+        //                     if (inputMap["a"]||inputMap['A']) {
+        //                         hashira.rotate(BABYLON.Vector3.Up(), -heroRotationSpeed);
+        //                         keydown = true;
+        //                     }
+        //                     if (inputMap["d"] || inputMap['D']) {
+        //                         hashira.rotate(BABYLON.Vector3.Up(), heroRotationSpeed);
+        //                         keydown = true;
+        //                     }
+        //                     if(inputMap[" "]){
+        //                         var heroSpeed=0.08
+        //                         hashira.moveWithCollisions(hashira.forward.scaleInPlace(heroSpeed));
+        //                          keydown=true;
+
+                            
+        //                     }
+                
+                       
+        //         if (walkAnimGroup) {
+        //             animationsWeight[walkAnimGroup.index] = 0;
+        //             if (keydown) {                      
+        //                 walkAnimGroup.weight=1;
+        //                 standAnimGroup.weight=0;  
+        //                 runAnimGroup.weight=0;  
+        //                 walkAnimGroup.setWeightForAllAnimatables(walkAnimGroup.weight);
+        //                 animationsWeight[walkAnimGroup.index] = 1; 
+        //                 console.log("walkinganimgroup   "+ animationsWeight[walkAnimGroup.index]);
+
+        //             }
+        //         }
+                
+
+        //         if (runAnimGroup) {
+        //             animationsWeight[runAnimGroup.index] = 0;
+        //             if(inputMap[" "]){
+        //                 keydown=true;
+        //             if (keydown ) {
+        //                 runAnimGroup.weight=5;
+        //                 standAnimGroup.weight=0;
+        //                 walkAnimGroup.weight=0.8;
+        //                 walkAnimGroup.setWeightForAllAnimatables(walkAnimGroup.weight);
+        //                 standAnimGroup.setWeightForAllAnimatables(standAnimGroup.weight);
+        //                 console.log(runAnimGroup.setWeightForAllAnimatables(runAnimGroup.weight));
+        //                 runAnimGroup.setWeightForAllAnimatables(runAnimGroup.weight);
+                    
+
+
+
+
+
+        //                 animationsWeight[runAnimGroup.index] = 1;
+        //             }
+        //         }
+        //         }
+        //         if (standAnimGroup) { 
+                   
+        //             animationsWeight[standAnimGroup.index] = 0;
+        //             if (!keydown ) {
+        //                 walkAnimGroup.weight=0;
+        //                 standAnimGroup.weight=1;
+        //                  walkAnimGroup.setWeightForAllAnimatables(walkAnimGroup.weight);
+        //                 standAnimGroup.setWeightForAllAnimatables(standAnimGroup.weight);
+        //                 animationsWeight[standAnimGroup.index] = 1;
+        //                 ;   
+        //             }
+        //         }
+        //             //Apply animation weights
+        //         for (var i = 0; i < animations.length; i++) {
+        //             var animation = animations[i];
+        //             var weight = animationsWeight[i];
+        //             if (weight > 0) {
+        //                 animation.weight = weight;
+        //                 animation.enableBlending = true;
+        //                 console.log("blending"+animation.enableBlending);
+        //             } else {
+        //                 animation.enableBlending = false;
+        //             }
+        //         }
+                
+            
+        //     })
+        // });
+
+
+            alert("welcome to Ghost Chest ");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            var xr = await scene.createDefaultXRExperienceAsync({
+                uiOptions: {
+                    sessionMode: "immersive-ar",
+                    referenceSpaceType: "local-floor"
+                },
+                optionalFeatures: true
+            });
+
+            return scene;
+   
+        };
+        window.initFunction = async function() {
+                   
+                   var asyncEngineCreation = async function() {
+                       try {
+                       return createDefaultEngine();
+                       } catch(e) {
+                       console.log("the available createEngine function failed. Creating the default engine instead");
+                       return createDefaultEngine();
+                       }
+                   }
+                   window.engine = await asyncEngineCreation();
+       if (!engine) throw 'engine should not be null.';
+       startRenderLoop(engine, canvas);
+       window.scene = createScene();};
+       initFunction().then(() => {sceneToRender = scene                    
+       });
+       // Resize
+       window.addEventListener("resize", function () {
+           engine.resize();    
+       });
+    </script>
+</body>
+</html>
