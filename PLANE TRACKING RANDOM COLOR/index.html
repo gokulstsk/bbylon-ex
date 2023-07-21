@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>PLANE TRACKING WITH RANDOM COLOR POLYGON</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://cdn.babylonjs.com/recast.js"></script>
+        <script src="https://cdn.babylonjs.com/ammo.js"></script>
+        <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+        <script src="https://cdn.babylonjs.com/cannon.js"></script>
+        <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+        <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            
+            #canvasZone {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+       
+        var createScene = async function() {
+        	var scene = new BABYLON.Scene(engine);
+        	var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 12, BABYLON.Vector3.Zero(), scene);
+        	camera.attachControl(canvas, true);
+        
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+        
+            var xr = await scene.createDefaultXRExperienceAsync({
+                uiOptions: {
+                    sessionMode: "immersive-ar",
+                    referenceSpaceType: "local-floor"
+                },
+                optionalFeatures: true
+            });
+        
+            const fm = xr.baseExperience.featuresManager;
+        
+            const xrPlanes = fm.enableFeature(BABYLON.WebXRPlaneDetector.Name, "latest");
+        
+            const planes = [];
+        
+            xrPlanes.onPlaneAddedObservable.add(plane => {
+                plane.polygonDefinition.push(plane.polygonDefinition[0]);
+                var polygon_triangulation = new BABYLON.PolygonMeshBuilder("name", plane.polygonDefinition.map((p) => new BABYLON.Vector2(p.x, p.z)), scene);
+                var polygon = polygon_triangulation.build(false, 0.01);
+                plane.mesh = polygon; 
+                planes[plane.id] = (plane.mesh);
+                const mat = new BABYLON.StandardMaterial("mat", scene);
+                mat.alpha = 0.5;
+                // pick a random color
+                mat.diffuseColor = BABYLON.Color3.Random();
+                polygon.createNormals();
+                plane.mesh.material = mat;
+        
+                plane.mesh.rotationQuaternion = new BABYLON.Quaternion();
+                plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position);
+            });
+        
+            xrPlanes.onPlaneUpdatedObservable.add(plane => {
+                let mat;
+                if (plane.mesh) {
+                    // keep the material, dispose the old polygon
+                    mat = plane.mesh.material;
+                    plane.mesh.dispose(false, false);
+                }
+                const some = plane.polygonDefinition.some(p => !p);
+                if (some) {
+                    return;
+                }
+                plane.polygonDefinition.push(plane.polygonDefinition[0]);
+                var polygon_triangulation = new BABYLON.PolygonMeshBuilder("name", plane.polygonDefinition.map((p) => new BABYLON.Vector2(p.x, p.z)), scene);
+                var polygon = polygon_triangulation.build(false, 0.01);
+                polygon.createNormals();
+                plane.mesh = polygon;
+                planes[plane.id] = (plane.mesh);
+                plane.mesh.material = mat;
+                plane.mesh.rotationQuaternion = new BABYLON.Quaternion();
+                plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position);
+            })
+        
+            xrPlanes.onPlaneRemovedObservable.add(plane => {
+                if (plane && planes[plane.id]) {
+                    planes[plane.id].dispose()
+                }
+            })
+        
+            xr.baseExperience.sessionManager.onXRSessionInit.add(() => {
+                planes.forEach(plane => plane.dispose());
+                while (planes.pop()) { };
+            });
+        
+        
+        	return scene;
+        };
+                window.initFunction = async function() {
+                    
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {scene.then(returnedScene => { sceneToRender = returnedScene; });
+                            
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
