@@ -1,0 +1,44 @@
+1. PLANE TRACKING ( AR )
+
+ var xr = await scene.createDefaultXRExperienceAsync({
+        uiOptions: {
+            sessionMode: "immersive-ar"
+}
+     });
+
+EXAMPLES
+
+Plane tracking in AR
+https://playground.babylonjs.com/#98TM63#181
+
+Hit test with marker
+
+https://playground.babylonjs.com/#XWBES1#475
+
+Spawn a default buddy in the screen( plane tracking and placing mesh ) 
+https://playground.babylonjs.com/#KDWCZY#440
+
+
+2.  HAND TRACKING ( VR )
+
+SPHERE WITH PLANE ( TRACKING )
+https://playground.babylonjs.com/#I319H6#26
+
+
+3. MARKER TRACKING ( AR )
+ 
+https://playground.babylonjs.com/#4LDB6D#21
+
+
+4. MARKERLESS AR TRACKING
+
+
+
+5. WebXR measurement tape 
+
+https://playground.babylonjs.com/#GG06BQ#97
+
+
+6. AR to play video.
+
+https://playground.babylonjs.com/#ZMCFYA#579
