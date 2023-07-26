@@ -65,7 +65,7 @@
             static async SetupXR(scene, options) {
                 scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
                 const root = new BABYLON.TransformNode("root", scene);
-                const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "ashok-piller.glb", scene);
+                const model = await BABYLON.SceneLoader.ImportMeshAsync("", "https://gokulstsk.github.io/babylonjs-project-work-samples/Monuments/models", "ashok-piller.glb", scene);
                 model.meshes[0].parent = root;
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
@@ -79,7 +79,6 @@
                     ]
                 });
                 imageTracking.onTrackedImageUpdatedObservable.add((image) => {
-                    // root.setPreTransformMatrix(image.transformationMatrix);
                     image.transformationMatrix.decompose(root.scaling, root.rotationQuaternion, root.position);
                     root.setEnabled(true);
                     root.translate(BABYLON.Axis.Y, 0.1, BABYLON.Space.LOCAL);
