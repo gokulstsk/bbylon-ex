@@ -65,8 +65,8 @@
             static async SetupXR(scene, options) {
                 scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
                 const root = new BABYLON.TransformNode("root", scene);
-                const model = new BABYLON.SceneLoader.ImportMesh("", "./models/", "ashok-piller.glb", scene);
-                model.meshes[0].parent = root;
+                const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "ashok-piller.glb", scene);
+                model.meshes[0].parent = root; 
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
                 const featuresManager = xr.baseExperience.featuresManager;

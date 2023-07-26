@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Monuments",
+    "\\Monuments\\models"
   ],
-  "SelectedNode": "\\D:\\babylonjs-sample-projects",
+  "SelectedNode": "\\Monuments\\index.html",
   "PreviewInSolutionExplorer": false
 }
