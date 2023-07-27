@@ -2,8 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\Monuments",
-    "\\Monuments\\models"
+    "\\Monuments\\models",
+    "\\Monuments\\textures"
   ],
-  "SelectedNode": "\\Monuments\\index.html",
   "PreviewInSolutionExplorer": false
 }
