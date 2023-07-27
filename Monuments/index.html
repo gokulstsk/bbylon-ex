@@ -68,7 +68,7 @@
                 const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "INDIA-GATE.glb", scene);
                 model.meshes[0].scaling = new BABYLON.Vector3(0.05, 0.05, 0.05);
                 model.meshes[0].parent = root;
-
+                model.meshes[0].rotation = new BABYLON
 
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
@@ -98,6 +98,19 @@
                         sessionMode: "immersive-ar"
                     }
                 });
+                var button = BABYLON.GUI.Button.CreateSimpleButton("button", "EXIT");
+                button.width = 0.2;
+                button.height = "40px";
+                button.color = "white";
+                button.background = "red";
+                button.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+                button.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+                advancedTexture.addControl(button);  
+                button.onPointerUpObservable.add(function () {
+
+                    alert("Ready for Game !");
+                });
+
                 return scene;
             }
         }
