@@ -71,8 +71,8 @@
                 model.meshes[0].parent = root;
                 const model1 = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "india.glb", scene);
                 model1.meshes[0].scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-                model1.meshes[0].parent = root1;
-                root1.rotationQuaternion = new BABYLON.Quaternion();
+                model1.meshes[0].parent = root;
+                //root1.rotationQuaternion = new BABYLON.Quaternion();
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
                 const featuresManager = xr.baseExperience.featuresManager;
