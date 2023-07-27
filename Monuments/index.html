@@ -68,7 +68,6 @@
                 const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "INDIA-GATE.glb", scene);
                 model.meshes[0].scaling = new BABYLON.Vector3(0.05, 0.05, 0.05);
                 model.meshes[0].parent = root;
-                model.meshes[0].rotation = new BABYLON
 
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
