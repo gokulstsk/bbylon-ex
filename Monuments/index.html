@@ -65,14 +65,11 @@
             static async SetupXR(scene, options) {
                 scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
                 const root = new BABYLON.TransformNode("root", scene);
-                const root1 = new BABYLON.TransformNode("root1", scene);
                 const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "INDIA-GATE.glb", scene);
                 model.meshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
                 model.meshes[0].parent = root;
-                const model1 = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "india.glb", scene);
-                model1.meshes[0].scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-                model1.meshes[0].parent = root1;
-                root1.rotationQuaternion = new BABYLON.Quaternion();
+
+
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
                 const featuresManager = xr.baseExperience.featuresManager;
@@ -84,20 +81,7 @@
                         }
                     ]
                 });
-                const imageTracking1 = featuresManager.enableFeature(BABYLON.WebXRFeatureName.IMAGE_TRACKING, "latest", {
-                    images: [
-                        
-                        {
-                            src: "textures/_Ashoka.jpg",
-                            estimatedRealWorldWidth: 0.2
-                        }
-                    ]
-                });
-                imageTracking1.onTrackedImageUpdatedObservable.add((image) => {
-                    image.transformationMatrix.decompose(root1.scaling, root1.rotationQuaternion, root1.position);
-                    root1.setEnabled(true);
-                    root1.translate(BABYLON.Axis.Y, 0.1, BABYLON.Space.LOCAL);
-                });
+              
                 imageTracking.onTrackedImageUpdatedObservable.add((image) => {
                     image.transformationMatrix.decompose(root.scaling, root.rotationQuaternion, root.position);
                     root.setEnabled(true);
