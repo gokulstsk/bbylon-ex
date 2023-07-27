@@ -66,7 +66,8 @@
                 scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
                 const root = new BABYLON.TransformNode("root", scene);
                 const model = await BABYLON.SceneLoader.ImportMeshAsync("", "./models/", "INDIA-GATE.glb", scene);
-                model.meshes[0].parent = root; 
+                model.meshes[0].scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+                model.meshes[0].parent = root;
                 root.rotationQuaternion = new BABYLON.Quaternion();
                 const xr = await scene.createDefaultXRExperienceAsync(options);
                 const featuresManager = xr.baseExperience.featuresManager;
