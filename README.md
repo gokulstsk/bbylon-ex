@@ -26,3 +26,4 @@
 
 <h3>Ashoka piller</h3>
 <a href="Monuments/index.html">demo</a>
+<a href="Monuments/index1.html">demooo</a>
