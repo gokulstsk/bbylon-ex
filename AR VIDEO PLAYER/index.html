@@ -88,7 +88,8 @@
         	var vidPos = (new BABYLON.Vector3(0,0,07))
             ANote0Video.position = vidPos;
         	var ANote0VideoMat = new BABYLON.StandardMaterial("m", scene);
-        	var ANote0VideoVidTex = new BABYLON.VideoTexture("vidtex","video/rainvideo.mp4", scene);
+            var ANote0VideoVidTex = new BABYLON.VideoTexture("vidtex", "video/rainvideo.mp4", scene);
+            window.ANote0VideoVidTex = ANote0VideoVidTex
         	ANote0VideoMat.diffuseTexture = ANote0VideoVidTex;
         	ANote0VideoMat.roughness = 1;
         	ANote0VideoMat.emissiveColor = new BABYLON.Color3.White();
@@ -110,9 +111,9 @@
         };
 
         window.addSound = () => {
-            window.videoElement.pause();
-            window.videoElement.muted = false;
-            window.s = new BABYLON.Sound("testSound", window.videoElement, scene, () => {
+            //window.videoElement.pause();
+            //window.videoElement.muted = false;
+            window.s = new BABYLON.Sound("testSound", window.ANote0VideoVidTex, scene, () => {
                 console.log("ready to play")
             }, {
                 loop: false,
