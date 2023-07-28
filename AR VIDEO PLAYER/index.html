@@ -102,11 +102,30 @@
         						ANote0VideoVidTex.video.pause();
                             console.log(ANote0VideoVidTex.video.paused?"paused":"playing");
         			}
-        	}, BABYLON.PointerEventTypes.POINTERPICK);
+            }, BABYLON.PointerEventTypes.POINTERPICK);
+            window.addSound();
             //console.log(ANote0Video);
             return scene;
         
         };
+
+        window.addSound = () => {
+            window.videoElement.pause()
+            window.videoElement.muted = false;
+            window.s = new BABYLON.Sound("testSound", window.videoElement, scene, () => {
+                console.log("ready to play")
+            }, {
+                loop: false,
+                autoPlay: true,
+                distanceModel: "exponential",
+                maxDistance: 100,
+                refDistance: 1,
+                rolloffFactor: 0.5,
+            })
+
+            //window.videoElement.play()
+            s.play()
+        }
                 window.initFunction = async function() {
                     
                     
