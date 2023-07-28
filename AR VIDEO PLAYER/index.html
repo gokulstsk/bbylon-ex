@@ -110,7 +110,7 @@
         };
 
         window.addSound = () => {
-            window.videoElement.pause()
+            window.videoElement.pause();
             window.videoElement.muted = false;
             window.s = new BABYLON.Sound("testSound", window.videoElement, scene, () => {
                 console.log("ready to play")
